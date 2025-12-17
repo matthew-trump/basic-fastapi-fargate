@@ -108,6 +108,13 @@ docker push <ACCOUNT>.dkr.ecr.<REGION>.amazonaws.com/fastapi-health:latest
   ```
 - The rendered task definition includes an application health check (`python -c "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"`) so ECS marks tasks `HEALTHY` once the `/health` endpoint responds.
 
+## Fargate deployment gotchas (lessons learned)
+- Build for the right architecture: Fargate defaults to `linux/amd64`; arm64-only images will fail to pull or pass health checks. Build/push `--platform linux/amd64` (or multi-arch) before deploying.
+- Target group type must be `ip` for awsvpc/Fargate; `instance` target groups will not work. Use the IP TG in your service and listener.
+- Security groups: ALB SG needs inbound 80/443 from the internet; task SG needs inbound 8001 from the ALB SG. Missing either causes timeouts.
+- Listener wiring: Ensure the ALB listener (port 80/443) forwards to the IP target group that points at port 8001.
+- ECS health column: Add a container `healthCheck` (included in the template) so tasks show `HEALTHY`; ALB health alone doesn’t change that field.
+
 ## Deployment Options
 Option A: ECS on Fargate
 
