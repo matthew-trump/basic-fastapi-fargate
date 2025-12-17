@@ -31,3 +31,6 @@ coverage.xml
 # Env files
 .env
 .env.*
+
+# Generated task definitions
+task-def.json

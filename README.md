@@ -95,6 +95,18 @@ aws ecr get-login-password \
 docker tag fastapi-health:latest <ACCOUNT>.dkr.ecr.<REGION>.amazonaws.com/fastapi-health:latest
 docker push <ACCOUNT>.dkr.ecr.<REGION>.amazonaws.com/fastapi-health:latest
 
+## ECS task definition template (port 8001)
+- A templated task definition lives at `task-def.template.json` with placeholders for account/region/roles.
+- Render a concrete task def without hard-coding your ARNs by exporting your values and generating JSON:
+  ```bash
+  export AWS_ACCOUNT_ID=<your-account>
+  export EXEC_ROLE_ARN=<arn:aws:iam::<acct>:role/ecsTaskExecutionRole>
+  export TASK_ROLE_ARN=<arn:aws:iam::<acct>:role/fastapi-health-task-role> # optional; defaults to EXEC_ROLE_ARN
+  export AWS_REGION=us-west-2
+  scripts/render-task-def.sh > task-def.json
+  aws ecs register-task-definition --region "$AWS_REGION" --cli-input-json file://task-def.json
+  ```
+
 ## Deployment Options
 Option A: ECS on Fargate
 

@@ -1,0 +1,25 @@
+{
+  "family": "fastapi-health",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "<EXEC_ROLE_ARN>",
+  "taskRoleArn": "<TASK_ROLE_ARN>",
+  "containerDefinitions": [
+    {
+      "name": "fastapi-health",
+      "image": "<ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/fastapi-health:<IMAGE_TAG>",
+      "portMappings": [{ "containerPort": 8001, "hostPort": 8001, "protocol": "tcp" }],
+      "essential": true,
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "<LOG_GROUP>",
+          "awslogs-region": "<REGION>",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+}
