@@ -106,6 +106,7 @@ docker push <ACCOUNT>.dkr.ecr.<REGION>.amazonaws.com/fastapi-health:latest
   scripts/render-task-def.sh > task-def.json
   aws ecs register-task-definition --region "$AWS_REGION" --cli-input-json file://task-def.json
   ```
+- The rendered task definition includes an application health check (`python -c "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"`) so ECS marks tasks `HEALTHY` once the `/health` endpoint responds.
 
 ## Deployment Options
 Option A: ECS on Fargate

@@ -25,6 +25,13 @@ cat <<EOF
       "image": "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/fastapi-health:${IMAGE_TAG}",
       "portMappings": [{ "containerPort": 8001, "hostPort": 8001, "protocol": "tcp" }],
       "essential": true,
+      "healthCheck": {
+        "command": ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8001/health')\" || exit 1"],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 10
+      },
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
