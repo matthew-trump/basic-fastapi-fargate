@@ -115,6 +115,16 @@ docker push <ACCOUNT>.dkr.ecr.<REGION>.amazonaws.com/fastapi-health:latest
 - Listener wiring: Ensure the ALB listener (port 80/443) forwards to the IP target group that points at port 8001.
 - ECS health column: Add a container `healthCheck` (included in the template) so tasks show `HEALTHY`; ALB health alone doesn’t change that field.
 
+## Terraform option (outline)
+You can express this entire setup in Terraform:
+- Network: `aws_vpc`, public/private `aws_subnet`, `aws_nat_gateway`, `aws_internet_gateway`, `aws_route_table`, `aws_security_group` (ALB ingress 80/443; task ingress 8001 from ALB SG).
+- ECR: `aws_ecr_repository`.
+- ALB: `aws_lb` (application, public subnets, ALB SG), `aws_lb_target_group` (target_type = "ip", port 8001), `aws_lb_listener` (80/443 -> TG).
+- Logs: `aws_cloudwatch_log_group` for `/ecs/fastapi-health`.
+- IAM: `aws_iam_role` + `AmazonECSTaskExecutionRolePolicy` (execution role) and optional task role.
+- ECS: `aws_ecs_cluster`; `aws_ecs_task_definition` (Fargate, awsvpc, cpu/memory, port 8001, container health check, awslogs); `aws_ecs_service` (launch_type FARGATE, private subnets + task SG, load_balancer to the IP TG).
+- Optional: `aws_acm_certificate` + HTTPS listener, autoscaling on the ECS service.
+
 ## Deployment Options
 Option A: ECS on Fargate
 
